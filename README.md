@@ -7,6 +7,7 @@ Jorge Carlos Urteaga Reyesvera
 José Carlos Castro Montes  
 
 ## Parallel Download
+	
+	seq 63 | xargs -I {} date -d "20161201 {} days" +%Y%m%d | parallel echo "http://data.gdeltproject.org/events/{}.export.CSV.zip"
 
-	seq -f "%02g" 31 | parallel echo "http://data.gdeltproject.org/events/201612{}.export.CSV.zip"
 

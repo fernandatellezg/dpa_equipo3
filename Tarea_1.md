@@ -24,16 +24,21 @@ Si los archivos ya existen en la carpeta no los descargamos, en caso contrario s
 Peso los archivos comprimidos 
 
 ``` shell
-> du -h .
+> du -h tmp3/.
 ```
+El comando du nos muestra el peso de los archivos.  
+La bandera -h los hace más entendibles (sino todo es en kilobytes).  
 
 Número de archivos  
 
  ```shell 
-> ls *.zip | wc -l
+> ls tmp3/*.zip | wc -l
 ```
-  
+Cuenta los archivos con terminación .zip en la carpeta tmp3.  
+
 ### Usando =parallel= y sin descomprimir los archivos guarda los registros de México en una tabla =mexico= en una base de datos =sqlite= llamada =gdelt.db=
+
+
 
 ### Al comando anterior agrega =tee= y guarda en otra *tabla* (llamada =mexico_ts=) el número de eventos por día y la escala de goldstein
 

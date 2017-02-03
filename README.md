@@ -12,3 +12,8 @@ José Carlos Castro Montes
 ## Comando awk 
 	
 	zcat -f 20170108.export.CSV.zip | awk '$16 == "KOR"'	
+
+##Agrego un || a la línea anterior e imprimo a mexico.csv
+
+	zcat -f 20161201.export.CSV.zip | awk '( $8=="MEX" || $18=="MEX") {print}'> mexico.csv
+

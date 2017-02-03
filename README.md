@@ -6,25 +6,19 @@ Jorge Carlos Urteaga Reyesvera
 Ángel Farid Fajardo Oroz  
 José Carlos Castro Montes  
 
-## Parallel Download
-	
-	seq 63 | xargs -I {} date -d "20161201 {} days" +%Y%m%d | parallel wget http://data.gdeltproject.org/events/{}.export.CSV.zip
-## Comando awk 
-	
-	zcat -f 20170108.export.CSV.zip | awk '$16 == "KOR"'	
+## Comando que baja archivos en paralelo 
 
-##Agrego un || a la línea anterior e imprimo a mexico.csv
+	seq 63 | xargs -I {} date -d "20161201 {} days" +%Y%m%d | parallel wget -nc http://data.gdeltproject.org/events/{}.export.CSV.zip -P ./tmp3/
 
-	zcat -f 20161201.export.CSV.zip | awk '( $8=="MEX" || $18=="MEX") {print}'> mexico.csv
+## Bajamos los headers
 
-##Parallel download, este ya revisa si el archivo existe y solo baja los nuevos, además los pone todos en una carpeta llamada "tmp3"
+	wget -nc http://gdeltproject.org/data/lookups/CSV.header.dailyupdates.txt -O mexico.csv
 
-	seq 63 | xargs -I {} date -d "20161201 {} days" +%Y%m%d | parallel wget -nc http://data.gdeltproject.org/events/{}.export.CSV.zip -P tmp3/
+## Filtramos y guardamos en mexico.csv (append)
 
-##Parallel filtra y agrega todos a mexico.csv
+	parallel zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}'>> mexico.csv 
 
-	seq 63 | xargs -I {} date -d "20161201 {} days" +%Y%m%d | parallel zcat -f tmp3/{}.export.CSV.zip | awk '( $8=="MEX" || $18=="MEX") {print}'>> tmp3/mexico.csv
+## Cargamos con parallel a la base de datos todo mexico.csv
 
-##Usando el tmp3 con parallel aplicado a zcat se guarda todo en un .csv
+	cat mexico.csv | parallel csvsql --db sqlite:///gdelt.db --table mexico --insert -t 
 
-	parallel zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}'>> mexico.csv

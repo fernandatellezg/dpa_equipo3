@@ -12,11 +12,15 @@ Cada uno de los archivos viene en formato =YYYYMMDD.export.CSV.zip=
 ``` shell 
 seq 63 | xargs -I {} date -d "20161201 {} days" +%Y%m%d | parallel wget -nc http://data.gdeltproject.org/events/{}.export.CSV.zip -P tmp3/
 
+wget -nc http://gdeltproject.org/data/lookups/CSV.header.dailyupdates.txt -O mexico.csv
+
+
 ```
 Primero creamos una secuencia de números.  
 Pasamos esta secuencia como argumento y, utilizando expresiones regulares, creamos una secuencia de fechas.  
 Después paralelizamos la descarga de los archivos especificados en la secuencia.  
-Si los archivos ya existen en la carpeta no los descargamos, en caso contrario se descargan comprimidos a la carpeta tmp3.   
+Si los archivos ya existen en la carpeta no los descargamos, en caso contrario se descargan comprimidos a la carpeta tmp3.  
+Descargamos además el archivo con los headers y le llamamos mexico.csv ya que a este se agregaran nuestros datos filtrados. 
 
 
 ### Reporten el número de archivos y el tamaño.
@@ -43,9 +47,12 @@ Cuenta los archivos con terminación .zip en la carpeta tmp3.
 
 parallel zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}'>> mexico.csv
 
+cat mexico.csv | parallel csvsql --db sqlite:///gdelt.db --table mexico --insert -t 
+
 ```
 El comando zcat nos permite ver los contenidos del archivo sin necesidad de descomprimirlo.  
-Filtramos los renglones que tengas MEX y los guardamos todos en un archivo mexico.csv.  
+Filtramos los renglones que tengas MEX y los guardamos todos en el archivo mexico.csv "appendeando".  
+Luego usamos igual parallel para cargar el archivo mexico.csv a una base de datos gdelt.db
 
 ### Al comando anterior agrega =tee= y guarda en otra *tabla* (llamada =mexico_ts=) el número de eventos por día y la escala de goldstein
 

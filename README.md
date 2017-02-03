@@ -24,3 +24,7 @@ José Carlos Castro Montes
 ##Parallel filtra y agrega todos a mexico.csv
 
 	seq 63 | xargs -I {} date -d "20161201 {} days" +%Y%m%d | parallel zcat -f tmp3/{}.export.CSV.zip | awk '( $8=="MEX" || $18=="MEX") {print}'>> tmp3/mexico.csv
+
+##Usando el tmp3 con parallel aplicado a zcat se guarda todo en un .csv
+
+	parallel zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}'>> mexico.csv

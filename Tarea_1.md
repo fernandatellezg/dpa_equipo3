@@ -39,6 +39,13 @@ Cuenta los archivos con terminación .zip en la carpeta tmp3.
 ### Usando =parallel= y sin descomprimir los archivos guarda los registros de México en una tabla =mexico= en una base de datos =sqlite= llamada =gdelt.db=
 
 
+``` shell 
+
+parallel zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}'>> mexico.csv
+
+```
+El comando zcat nos permite ver los contenidos del archivo sin necesidad de descomprimirlo.  
+Filtramos los renglones que tengas MEX y los guardamos todos en un archivo mexico.csv.  
 
 ### Al comando anterior agrega =tee= y guarda en otra *tabla* (llamada =mexico_ts=) el número de eventos por día y la escala de goldstein
 

@@ -17,3 +17,8 @@ José Carlos Castro Montes
 
 	zcat -f 20161201.export.CSV.zip | awk '( $8=="MEX" || $18=="MEX") {print}'> mexico.csv
 
+##Parallel download, este ya revisa si el archivo existe y solo baja los
+nuevos, además los pone todos en una carpeta llamada "tmp3"
+
+	seq 63 | xargs -I {} date -d "20161201 {} days" +%Y%m%d | parallel wget -nc http://data.gdeltproject.org/events/{}.export.CSV.zip -P tmp3/
+

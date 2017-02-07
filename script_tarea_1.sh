@@ -12,9 +12,10 @@ du -h ./tmp3/
 echo "Número de archivos"
 ls ./tmp3/ *.zip | wc -l 
 
-#parallel -j0 zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}' >> tmp3/mexico.csv 
+parallel -j0 zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}' >> tmp3/mexico.csv 
 
-#cat mexico.csv | parallel -j0 csvsql --db sqlite:///tmp3/gdelt.db --table mexico --insert -t 
+#cargando a base de datos
+cat mexico.csv | parallel -j0 csvsql --db sqlite:///tmp3/gdelt.db --table mexico --insert -t 
 
 echo "Creando una tabla en base de datos, sin descomprimir archivos, en paralelo"
 parallel -j0 zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}' | csvsql --db sqlite:///tmp3/gdelt.db --tables mexico --insert 

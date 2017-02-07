@@ -15,4 +15,3 @@ ls ./tmp3/ *.zip | wc -l
 parallel zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}'>> mexico.csv 
 
 cat mexico.csv | parallel csvsql --db sqlite:///gdelt.db --table mexico --insert -t 
-

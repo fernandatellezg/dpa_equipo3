@@ -72,7 +72,13 @@ parallel -j0 zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="
 
 Y con el comando tee, para guardarl el número de ventos por día (columna 27) y escala de goldstein (columna 31)
 ``` shell 
-parallel -j0 zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}' | csvsql --db sqlite:///tmp3/gdelt.db --tables mexico --insert  | tee awk '{print $27 "," $31}'  | csvsql --db sqlite:///tmp3/gdelt.db --tables mexico_ts --insert  
+parallel zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}'|tee -a mexico.csv | awk -F "\t" '{counter[$2] +=1 ; sum_goldstein[$2]+=$31}END{for(i in counter) print i "\t" counter[i] "\t" sum_goldstein[i]}'| tee -a goldstein_tmp.csv | parallel awk -F "\t" '{counter_2[$1] += $2 ; sum_goldstein_2[$1] +=$3}END{for(i in counter_2) print i "\t" counter_2[i] "\t" sum_goldstein_2[i]/counter_2[i]}' >> goldstein_tmp_2.csv
 ```
+LO hicimos utilizando associative arrays, idea que salio de este post "http://unix.stackexchange.com/questions/242946/using-awk-to-sum-the-values-of-a-column-based-on-the-values-of-another-column" es como una mini tabla dinámica.
 
+```shell
 
+cat mexico.csv | parallel csvsql --db sqlite:///gdelt.db --table mexico --insert -t
+
+cat goldstein_tmp_2.csv| csvsql --db sqlite:///gdelt.db --table mexico_ts --insert -t
+```

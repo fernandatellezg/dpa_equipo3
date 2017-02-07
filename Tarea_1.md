@@ -7,10 +7,11 @@ http://data.gdeltpoject.org/events/index.htm
 
 Cada uno de los archivos viene en formato =YYYYMMDD.export.CSV.zip=
 
-###Para generar una secuencia de números, que dependa de una fecha fija y la fecha actual
+###Para generar una secuencia de números
 ``` shell 
 seq $((($(date --date=$(date -u -d "-2 days" +"%Y%m%d") +%s) - $(date --date=$(date -u -d "20161201" +"%Y%m%d") +%s) )/(60*60*24))) 
 ```
+Esta secuencia de numeros depende de una fecha fija (1 diciembre 2016) y la fecha actual
 
 ### Descarguen los archivos desde el mes de Diciembre de 2016 (usando =parallel= obviamente)
 
@@ -24,10 +25,10 @@ wget -nc http://gdeltproject.org/data/lookups/CSV.header.dailyupdates.txt -O mex
 
 ```
 Primero creamos una secuencia de números.  
-Pasamos esta secuencia como argumento y, utilizando expresiones regulares, creamos una secuencia de fechas.  
+Pasamos esta secuencia como argumento y, creamos una secuencia de fechas con base a estos números generados.  
 Después paralelizamos la descarga de los archivos especificados en la secuencia.  
 Si los archivos ya existen en la carpeta no los descargamos, en caso contrario se descargan comprimidos a la carpeta tmp3.  
-Descargamos además el archivo con los headers y le llamamos mexico.csv ya que a este se agregaran nuestros datos filtrados. 
+Descargamos además el archivo con los headers y le llamamos names_gdelt.csv ya que a este se agregaran nuestros datos filtrados. 
 
 
 ### Reporten el número de archivos y el tamaño.
@@ -63,5 +64,15 @@ Luego usamos igual parallel para cargar el archivo mexico.csv a una base de dato
 
 ### Al comando anterior agrega =tee= y guarda en otra *tabla* (llamada =mexico_ts=) el número de eventos por día y la escala de goldstein
 
+Otra opción sería:
+``` shell 
+parallel -j0 zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}' | csvsql --db sqlite:///tmp3/gdelt.db --tables mexico --insert 
+
+```
+
+Y con el comando tee, para guardarl el número de ventos por día (columna 27) y escala de goldstein (columna 31)
+``` shell 
+parallel -j0 zcat ::: $(ls ./tmp3/*.export.CSV.zip) | awk '( $8=="MEX" || $18=="MEX") {print}' | csvsql --db sqlite:///tmp3/gdelt.db --tables mexico --insert  | tee awk '{print $27 "," $31}'  | csvsql --db sqlite:///tmp3/gdelt.db --tables mexico_ts --insert  
+```
 
 

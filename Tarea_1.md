@@ -7,10 +7,17 @@ http://data.gdeltpoject.org/events/index.htm
 
 Cada uno de los archivos viene en formato =YYYYMMDD.export.CSV.zip=
 
+###Para generar una secuencia de números, que dependa de una fecha fija y la fecha actual
+``` shell 
+seq $((($(date --date=$(date -u -d "-2 days" +"%Y%m%d") +%s) - $(date --date=$(date -u -d "20161201" +"%Y%m%d") +%s) )/(60*60*24))) 
+```
+
 ### Descarguen los archivos desde el mes de Diciembre de 2016 (usando =parallel= obviamente)
 
 ``` shell 
-seq 63 | xargs -I {} date -d "20161201 {} days" +%Y%m%d | parallel wget -nc http://data.gdeltproject.org/events/{}.export.CSV.zip -P tmp3/
+seq $((($(date --date=$(date -u -d "-2 days" +"%Y%m%d") +%s) - $(date --date=$(date -u -d "20161201" +"%Y%m%d") +%s) )/(60*60*24))) \
+| xargs -I {} date -d "20161201 {} days" +%Y%m%d \
+| parallel wget -nc http://data.gdeltproject.org/events/{}.export.CSV.zip -P tmp3/
 
 wget -nc http://gdeltproject.org/data/lookups/CSV.header.dailyupdates.txt -O mexico.csv
 
